@@ -430,6 +430,7 @@ int main(void) {
 
   showLetter(asciiToChar(65));  // ASCII 65 = A
 
-  while (true)
-    ;
+  while (1);
+
+  return 0;
 }
