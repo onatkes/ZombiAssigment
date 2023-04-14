@@ -24,30 +24,20 @@ char asciiToChar(int asciiCode) {
   return c;
 }
 
-// Portları başlat
 void initPorts() {
-  // GPIOA portunu etkinleştir
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-  // GPIOC portunu etkinleştir
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-
-  // GPIOA portunun 12, 13, 14 ve 15 numaralı pinlerini çıkış olarak ayarla
-  GPIO_InitTypeDef GPIO_InitStruct;
-  GPIO_InitStruct.Pin = GPIO_PIN_((('O' + 'n' + 'a' + 't') % 8) + 8) | GPIO_PIN_((('n' + 'a' + 't') % 8) + 8) | GPIO_PIN_((('O' + 'n' + 'a') % 8) + 8) | GPIO_PIN_((('t' + 'K' + 'e') % 8) + 8);
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED1_PORT, &GPIO_InitStruct);
-
-  // GPIOC portunun 6, 7, 8, 9 ve 10 numaralı pinlerini çıkış olarak ayarla
-  GPIO_InitStruct.Pin = GPIO_PIN_((('K' + 'e' + 'ş' + 'O') % 8) + 8) | GPIO_PIN_((('a' + 't' + 'K') % 8) + 8) | GPIO_PIN_((('e' + 'ş' + 'O') % 8) + 8) | GPIO_PIN_((('K' + 'e' + 'ş') % 8) + 8) | GPIO_PIN_((('ş' + 'O' + 'n') % 8) + 8);
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED5_PORT, &GPIO_InitStruct);
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+  GPIOA->MODER |= GPIO_MODER_MODE10_0 | GPIO_MODER_MODE11_0 | GPIO_MODER_MODE14_0 | GPIO_MODER_MODE12_0;
+  GPIOA->OTYPER &= ~(GPIO_OTYPER_OT10 | GPIO_OTYPER_OT11 | GPIO_OTYPER_OT14 | GPIO_OTYPER_OT12);
+  GPIOA->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEED10 | GPIO_OSPEEDER_OSPEED11 | GPIO_OSPEEDER_OSPEED14 | GPIO_OSPEEDER_OSPEED12);
+  GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPD10 | GPIO_PUPDR_PUPD11 | GPIO_PUPDR_PUPD14 | GPIO_PUPDR_PUPD12);
+  GPIOC->MODER |= GPIO_MODER_MODE14_0 | GPIO_MODER_MODE8_0 | GPIO_MODER_MODE11_0 | GPIO_MODER_MODE15_0 | GPIO_MODER_MODE12_0;
+  GPIOC->OTYPER &= ~(GPIO_OTYPER_OT14 | GPIO_OTYPER_OT8 | GPIO_OTYPER_OT11 | GPIO_OTYPER_OT15 | GPIO_OTYPER_OT12);
+  GPIOC->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEED14 | GPIO_OSPEEDER_OSPEED8 | GPIO_OSPEEDER_OSPEED11 | GPIO_OSPEEDER_OSPEED15 | GPIO_OSPEEDER_OSPEED12);
+  GPIOC->PUPDR &= ~(GPIO_PUPDR_PUPD14 | GPIO_PUPDR_PUPD8 | GPIO_PUPDR_PUPD11 | GPIO_PUPDR_PUPD15 | GPIO_PUPDR_PUPD12);
 }
 
-// Bir LED'i aç veya kapat
+
 void setLed(uint8_t pin, GPIO_TypeDef* port, uint8_t value) {
   if (value == 0) {
     port->BSRRH = (uint16_t)(1 << pin);
@@ -56,7 +46,7 @@ void setLed(uint8_t pin, GPIO_TypeDef* port, uint8_t value) {
   }
 }
 
-// Bir harfi göstermek için LED'leri ayarla
+
 void showLetter(char letter) {
   switch (letter) {
     case 'A':
@@ -378,7 +368,7 @@ void showLetter(char letter) {
       setLed(LED8_PIN, LED8_PORT, 0);
       setLed(LED9_PIN, LED9_PORT, 1);
       break;
-    
+
     case 'X':
       setLed(LED1_PIN, LED1_PORT, 1);
       setLed(LED2_PIN, LED2_PORT, 0);
@@ -422,7 +412,6 @@ void showLetter(char letter) {
       break;
 
     default:
-      // Bilinmeyen bir karakter gösteriliyorsa tüm LED'leri kapat
       setLed(LED1_PIN, LED1_PORT, 1);
       setLed(LED2_PIN, LED2_PORT, 1);
       setLed(LED3_PIN, LED3_PORT, 1);
@@ -437,13 +426,10 @@ void showLetter(char letter) {
 }
 
 int main(void) {
-  // Portları başlat
   initPorts();
 
-  // Test amaçlı bir harf göster
-  showLetter(asciiToChar(65));  // ASCII 65 = A 
+  showLetter(asciiToChar(65));  // ASCII 65 = A
 
-  while (1) {
-    // Sonsuz döngü
-  }
+  while (true)
+    ;
 }
